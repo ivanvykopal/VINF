@@ -7,5 +7,3 @@ DIRECTORY = "./files/"
 OUTPUT_FILE = "./files/output.txt"
 STOP_WORDS = "stop_words.txt"
 NON_TYPES = "common_types.txt"
-ID = 0
-FREQUENCY = 1

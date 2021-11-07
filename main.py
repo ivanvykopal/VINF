@@ -1,8 +1,19 @@
-from indexer import read_index
+import json
 from search_engine import search
 from regex import R_MAX_COUNT
 from inverted_index import InvertedIndex
 import re
+
+
+def read_index():
+    """
+    Metóda pre načítanie indexu zo súboru.
+    :return: načítaný index
+    """
+    with open("index.json") as jsonFile:
+        index = json.load(jsonFile)
+
+    return index
 
 
 if __name__ == '__main__':

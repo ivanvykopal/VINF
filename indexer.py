@@ -1,51 +1,40 @@
 import re
 import time
 import json
-import os
-from regex import R_ATTRIBUTE, R_ID
-from constants import DIRECTORY
+import jsonpickle
+from constants import OUTPUT_FILE
 from analyzer import tokenize, remove_stop_words
 from inverted_index import InvertedIndex
 
 
-def read_index():
-    """
-    Metóda pre načítanie indexu zo súboru.
-    :return: načítaný index
-    """
-    with open("index.json") as jsonFile:
-        index = json.load(jsonFile)
-
-    return index
-
-
-def index_file(file_name):
+def index_file(row):
     """
     Metóda pre zaindexovania údajov z vybraného súboru.
-    :param file_name: názov súboru, ktorý budeme indexovať
+    :param row: riadok, ktorý tokenizujeme
     :return: id objektu
              index pre daný súbor v tvare dictionary
     """
-    file = open(file_name, 'r', encoding='utf-8')
     index = dict()
-    for line in file:
-        result = re.search(R_ATTRIBUTE, line.strip())
-        string = result.group(2)
+    json_data = jsonpickle.decode(row.strip())
+    string = ''.join(json_data['title'])
+    if json_data['types']:
+        string = string + ' ' + ' '.join(json_data['types'])
 
-        # tokenizácia reťazca
-        tokens = tokenize(string)
+    if json_data['alts']:
+        string = string + ' ' + ' '.join(json_data['alts'])
 
-        # odstránenie stop slov a prázdnych reťazcov z pomedzi tokenov
-        tokens = remove_stop_words(tokens)
-        for token in tokens:
-            if token in index:
-                index[token] = index[token] + 1
-            else:
-                index[token] = 1
+    # tokenizácia reťazca
+    tokens = tokenize(string)
 
-    file.close()
-
-    return re.search(R_ID, file_name).group(1), index
+    # odstránenie stop slov a prázdnych reťazcov z pomedzi tokenov
+    tokens = remove_stop_words(tokens)
+    for token in tokens:
+        if token in index:
+            index[token] = index[token] + 1
+        else:
+            index[token] = 1
+    # print(index)
+    return json_data['id'], index
 
 
 def create_index():
@@ -55,11 +44,23 @@ def create_index():
     """
     start_time = time.time()
     my_index = InvertedIndex()
-    for file in os.listdir(DIRECTORY):
-        file_id, index = index_file(DIRECTORY + file)
+
+    print('Index file')
+    file = open(OUTPUT_FILE, 'r', encoding='utf-8')
+    i = 0
+    while True:
+        line = file.readline()
+        i = i + 1
+        if not line:
+            break
+        if i % 1000 == 0:
+            print(i)
+
+        file_id, index = index_file(line)
         for key in index.keys():
             my_index.add_term(key, index[key], file_id)
 
+    file.close()
     my_index.sort_index()
     with open("index.json", "w", encoding='utf-8') as outfile:
         json.dump(my_index.get_index(), outfile)

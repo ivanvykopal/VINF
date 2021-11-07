@@ -1,6 +1,5 @@
-import os
 import math
-from constants import DIRECTORY, FREQUENCY, OUTPUT_FILE
+from constants import OUTPUT_FILE
 
 
 class InvertedIndex:
@@ -59,35 +58,35 @@ class InvertedIndex:
     def _find_count():
         return sum(1 for line in open(OUTPUT_FILE))
 
-    def tf_idf(self, term, index):
+    def tf_idf(self, term, index, n):
         """
         Metóda na výpočet tf-idf pre zadaný term a súbor.
         :param term: hľadaný term
         :param index: index dokumentu
+        :param n: počet dokumentov
         :return: hodnotu tf-idf pre daný term
         """
-        n = self._find_count()
         values = self._index[term]
         df = len(values)
         idf = math.log(n / df, 10)
         value = values[index]
-        tf = value[FREQUENCY]
+        tf = value['freq']
         tf_idf = tf * idf
         return tf_idf
 
-    def wf_idf(self, term, index):
+    def wf_idf(self, term, index, n):
         """
         Metóda na výpočet wf-idf pre zadný term a index. Wf-idf predstavuje logaritmické škálovanie.
         :param term: hľadaný term
         :param index: index dokumentu
+        :param n: počet dokumentov
         :return: hodnotu wf-idf pre daný term
         """
-        n = self._find_count()
         values = self._index[term]
         df = len(values)
         idf = math.log(n / df, 10)
         value = values[index]
-        tf = value[FREQUENCY]
+        tf = value['freq']
         wtf = 1 + math.log(tf, 10)
         wf_idf = wtf * idf
         return wf_idf
