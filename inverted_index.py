@@ -58,7 +58,7 @@ class InvertedIndex:
     def _find_count():
         return sum(1 for line in open(OUTPUT_FILE))
 
-    def tf_idf(self, term, index, n):
+    def tf_idf(self, term, index, n=1):
         """
         Metóda na výpočet tf-idf pre zadaný term a súbor.
         :param term: hľadaný term
@@ -74,7 +74,7 @@ class InvertedIndex:
         tf_idf = tf * idf
         return tf_idf
 
-    def wf_idf(self, term, index, n):
+    def wf_idf(self, term, index, n=1):
         """
         Metóda na výpočet wf-idf pre zadný term a index. Wf-idf predstavuje logaritmické škálovanie.
         :param term: hľadaný term
