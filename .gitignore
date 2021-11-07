@@ -1,0 +1,8 @@
+.idea
+__pycache__
+data
+files
+venv
+alts.txt
+index.json
+titles.txttypes.txt

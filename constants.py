@@ -1,0 +1,10 @@
+FREEBASE_DATA = "./data/freebase-head-1000000"
+# FREEBASE_DATA = "./data/freebase-rdf-latest.gz"
+TITLE_FILE = "titles.txt"
+TYPE_FILE = "types.txt"
+ALT_FILE = "alts.txt"
+DIRECTORY = "./files/"
+STOP_WORDS = "stop_words.txt"
+NON_TYPES = "common_types.txt"
+ID = 0
+FREQUENCY = 1
