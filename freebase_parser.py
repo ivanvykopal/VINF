@@ -3,8 +3,9 @@ import os
 import shutil
 import time
 import gzip
+import jsonpickle
 from regex import R_TITLE, R_ALT, R_TYPE, R_EN, R_LANG, R_LANG_TERM
-from constants import TYPE_FILE, TITLE_FILE, ALT_FILE, NON_TYPES, DIRECTORY, FREEBASE_DATA
+from constants import TYPE_FILE, TITLE_FILE, ALT_FILE, NON_TYPES, DIRECTORY, FREEBASE_DATA, OUTPUT_FILE
 
 
 def get_non_types():
@@ -42,19 +43,19 @@ def parse_line(line, fh1, fh2, fh3):
     :param fh3: file handler pre zápis alt
     """
 
-    # Kontrola či riadok obsahuje názov
+    # Kontrola, či riadok obsahuje názov
     result = re.search(R_TITLE, line)
     if result:
         fh1.write(result.group(1) + "\t" + result.group(2) + "\n")
         return
 
-    # Kontrola či riadok obsahuje typ
+    # Kontrola, či riadok obsahuje typ
     result = re.search(R_TYPE, line)
     if result:
         string = re.sub(r"[_\.]", " ", result.group(2))
         fh2.write(result.group(1) + "\t" + string + "\n")
 
-    # Kontrola či riadok obsahuje alternatívny názov
+    # Kontrola, či riadok obsahuje alternatívny názov
     result = re.search(R_ALT, line)
     try:
         if result:
@@ -64,7 +65,7 @@ def parse_line(line, fh1, fh2, fh3):
         print('Riadok: ' + line)
         print(result.group())
 
-    # Kontrola či riadok obsahuje alternatívny názov v inom jazyku
+    # Kontrola, či riadok obsahuje alternatívny názov v inom jazyku
     result = re.search(R_LANG, line)
     if result:
         string = result.group(2)
@@ -100,18 +101,18 @@ def merge_data():
        - typy,
        - alternatívne názvy
     """
-    # print("merger")
-    clear_data(DIRECTORY)
+    print("merger")
+    # clear_data(DIRECTORY)
 
     # vytvorenie jednotlivých súborov pre objekty s pridaním názvov pre tieto objekty
     file = open(TITLE_FILE, 'r', encoding='utf-8')
     # print("nazvy")
+    data = dict()
     for line in file:
         (id, title) = line.split("\t")
         if id and title:
-            output_file = open(DIRECTORY + id, 'w+', encoding='utf-8')
-            output_file.write("title: " + title.strip() + "\n")
-            output_file.close()
+            if id not in data.keys():
+                data[id] = {'id': id, 'title': [title.strip()], 'types': [], 'alts': []}
 
     file.close()
 
@@ -123,16 +124,14 @@ def merge_data():
     # print("typy")
     for line in file:
         (id, type) = line.split("\t")
+        type = type.strip()
         if type.strip() in non_types:
             continue
-        try:
-            output_file = open(DIRECTORY + id, 'r+', encoding='utf-8')
-            found = check_line(output_file, "type: " + type.strip(), False)
-            if not found:
-                output_file.write("type: " + type.strip() + "\n")
-            output_file.close()
-        except IOError:
-            continue
+        if id in data.keys():
+            record = data[id]
+            if type not in record['types']:
+                record['types'].append(type)
+                data[id] = record
 
     file.close()
 
@@ -141,16 +140,21 @@ def merge_data():
     # print("aliasy")
     for line in file:
         (id, alt) = line.split("\t")
-        try:
-            output_file = open(DIRECTORY + id, 'r+', encoding='utf-8')
-            found = check_line(output_file, "alternative: " + alt.strip(), True)
-            if not found:
-                output_file.write("alternative: " + alt.strip() + "\n")
-            output_file.close()
-        except IOError:
-            continue
+        alt = alt.strip()
+        if id in data.keys():
+            record = data[id]
+            if alt not in record['alts']:
+                record['alts'].append(alt)
+                data[id] = record
 
     file.close()
+
+    output_file = open(OUTPUT_FILE, 'w+', encoding='utf-8')
+    for key in data.keys():
+        json_data = jsonpickle.encode(data[key], unpicklable=False)
+        output_file.write(json_data + "\n")
+
+    output_file.close()
 
 
 def parse_data(line_num):
@@ -158,10 +162,9 @@ def parse_data(line_num):
     Metóda na parsovanie zadaného počtu riadkov z Freebase databázy.
     :param line_num: počet riadkov, ktoré chceme parsovať
     """
-    file_name = FREEBASE_DATA
 
-    # file_in = gzip.open(file_name, 'rt', encoding='utf-8')
-    file_in = open(file_name, 'rt', encoding='utf-8')
+    file_in = gzip.open(FREEBASE_DATA, 'rt', encoding='utf-8')
+    # file_in = open(FREEBASE_DATA, 'rt', encoding='utf-8')
     file_title = open(TITLE_FILE, 'w', encoding='utf-8')
     file_type = open(TYPE_FILE, 'w', encoding='utf-8')
     file_alt = open(ALT_FILE, 'w', encoding='utf-8')
@@ -193,4 +196,4 @@ if __name__ == '__main__':
     """
     Metóda pre spustenie parsera ako samostatného programu
     """
-    parse_data(10_000_000)
+    parse_data(100_000_000)

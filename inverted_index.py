@@ -1,6 +1,6 @@
 import os
 import math
-from constants import DIRECTORY, ID, FREQUENCY
+from constants import DIRECTORY, FREQUENCY, OUTPUT_FILE
 
 
 class InvertedIndex:
@@ -21,9 +21,9 @@ class InvertedIndex:
         :param file_id: názov súboru
         """
         if term in self._index:
-            self._index[term] = self._index[term] + [(file_id, frequency)]
+            self._index[term] = self._index[term] + [{'id': file_id, 'freq': frequency}]
         else:
-            self._index[term] = [(file_id, frequency)]
+            self._index[term] = [{'id': file_id, 'freq': frequency}]
 
     def get_appearances(self, term):
         """
@@ -55,6 +55,10 @@ class InvertedIndex:
         """
         self._index = dict(sorted(self._index.items()))
 
+    @staticmethod
+    def _find_count():
+        return sum(1 for line in open(OUTPUT_FILE))
+
     def tf_idf(self, term, index):
         """
         Metóda na výpočet tf-idf pre zadaný term a súbor.
@@ -62,7 +66,7 @@ class InvertedIndex:
         :param index: index dokumentu
         :return: hodnotu tf-idf pre daný term
         """
-        n = len(os.listdir(DIRECTORY))
+        n = self._find_count()
         values = self._index[term]
         df = len(values)
         idf = math.log(n / df, 10)
@@ -78,7 +82,7 @@ class InvertedIndex:
         :param index: index dokumentu
         :return: hodnotu wf-idf pre daný term
         """
-        n = len(os.listdir(DIRECTORY))
+        n = self._find_count()
         values = self._index[term]
         df = len(values)
         idf = math.log(n / df, 10)
