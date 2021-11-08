@@ -99,13 +99,13 @@ def search(query, my_index, max_count):
 
     # zoradenie indexu abecedne
     query_index.sort_index()
+    query_index.tf_idf(1)
 
     # výpočet skóre jednotlivých dokumentov
     scores = dict()
-    document_count = sum(1 for line in open(OUTPUT_FILE))
     for key in query_index.get_index().keys():
         # získanie tf-idf pre term
-        tf_idf = query_index.tf_idf(key, 0)
+        tf_idf = float(query_index.get_appearances(key)[0]['tf_idf'])
         # získanie posting listu pre term
         appearances = my_index.get_appearances(key)
         if not appearances:
@@ -116,14 +116,14 @@ def search(query, my_index, max_count):
             # kontrola, či daný dokument je v prieniku => vykonávame AND operáciu
             if file_id not in final_documents:
                 continue
-            wf_idf = my_index.wf_idf(key, index, document_count)
+            wf_idf = app['wf_idf']
             score = tf_idf * wf_idf
             if file_id in scores:
                 scores[file_id] = scores[file_id] + score
             else:
                 scores[file_id] = score
 
-    print("\nSkóre je vypočítané, hľadajú sa dokumenty!\n")
+    print("Skóre je vypočítané, hľadajú sa dokumenty!\n")
     # zoradnie dokumentov podľa skóre od najväčšieho po najmenšie
     sorted_scores = dict(sorted(scores.items(), key=lambda item: item[1], reverse=True))
     # print(sorted_scores)

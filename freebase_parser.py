@@ -5,7 +5,7 @@ import time
 import gzip
 import jsonpickle
 from regex import R_TITLE, R_ALT, R_TYPE, R_EN, R_LANG, R_LANG_TERM
-from constants import TYPE_FILE, TITLE_FILE, ALT_FILE, NON_TYPES, DIRECTORY, FREEBASE_DATA, OUTPUT_FILE
+from constants import TYPE_FILE, TITLE_FILE, ALT_FILE, NON_TYPES, FREEBASE_DATA, OUTPUT_FILE
 
 
 def get_non_types():
