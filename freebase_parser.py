@@ -149,12 +149,11 @@ def merge_data():
 
     file.close()
 
-    output_file = open(OUTPUT_FILE, 'w+', encoding='utf-8')
     for key in data.keys():
+        output_file = open('./files/objects/' + key + '.txt', 'w', encoding='utf-8')
         json_data = jsonpickle.encode(data[key], unpicklable=False)
         output_file.write(json_data + "\n")
-
-    output_file.close()
+        output_file.close()
 
 
 def parse_data(line_num):

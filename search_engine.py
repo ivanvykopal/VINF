@@ -21,32 +21,19 @@ def find_intersection_documents(posting_lists):
     return final_documents
 
 
-def find_documents(id_list):
-    documents = dict()
-    file = open(OUTPUT_FILE, 'r', encoding='utf-8')
-    for line in file:
-        json_data = jsonpickle.decode(line.strip())
-        if json_data['id'] in id_list:
-            documents[json_data['id']] = json_data
-            id_list.remove(json_data['id'])
-            if not id_list:
-                break
-    file.close()
-
-    return documents
-
-
-def print_info(file_name, score, documents):
+def print_info(file_name, score):
     """
     Metóda pre vypísanie informácie o vybranom dokumente.
     :param file_name: názov súboru
     :param score: skóre dokumentu
-    :param documents: zoznam dokumentov
     """
-    values = documents[file_name]
-    title = values['title']
-    types = values['types']
-    alts = values['alts']
+    file = open('./files/objects/' + file_name + '.txt', 'r', encoding='utf-8')
+    line = file.readline()
+    file.close()
+    json_data = jsonpickle.decode(line.strip())
+    title = json_data['title']
+    types = json_data['types']
+    alts = json_data['alts']
 
     print("Nazov:\t\t\t" + title)
     print("ID:\t\t\t\t" + file_name)
@@ -99,6 +86,7 @@ def search(query, my_index, max_count):
 
     # zoradenie indexu abecedne
     query_index.sort_index()
+    # výpočet tf_idf
     query_index.tf_idf(1)
 
     # výpočet skóre jednotlivých dokumentov
@@ -131,13 +119,10 @@ def search(query, my_index, max_count):
         print("\nNeboli najdene ziadne zaznamy!\n\n")
         return
 
-    # vyhľadanie a uloženie jednotlivých dokumentov
-    documents = find_documents(final_documents)
-    print(len(documents))
     # vypísanie info pre jednotlivé dokumenty
     i = 1
     for key in sorted_scores.keys():
-        print_info(key, sorted_scores[key], documents)
+        print_info(key, sorted_scores[key])
         i = i + 1
         if max_count != -1 and i > max_count:
             break

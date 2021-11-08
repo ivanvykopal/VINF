@@ -1,4 +1,5 @@
 import math
+import os
 from constants import OUTPUT_FILE
 
 
@@ -31,7 +32,6 @@ class InvertedIndex:
                 self._index[term].append({'id': document, 'freq': freq})
 
         file.close()
-
 
     def add_term(self, term, frequency, file_id):
         """
@@ -82,7 +82,7 @@ class InvertedIndex:
         :return: hodnotu tf-idf pre daný term
         """
         if n is None:
-            n = sum(1 for line in open(OUTPUT_FILE))
+            n = len(os.listdir('./files/objects'))
 
         for term in self._index.keys():
             values = self._index[term]
@@ -106,7 +106,7 @@ class InvertedIndex:
         :return: hodnotu wf-idf pre daný term
         """
         if n is None:
-            n = sum(1 for line in open(OUTPUT_FILE))
+            n = len(os.listdir('./files/objects'))
 
         for term in self._index.keys():
             values = self._index[term]
