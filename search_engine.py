@@ -8,7 +8,7 @@ def find_intersection_documents(posting_lists):
     # final_documents bude na konci obsahovať zoznam dokumentov, v ktorých sa vyskytujú všetky slová z dopytu
     final_documents = []
     if len(posting_lists) == 1:
-        final_documents = list(posting_lists)
+        final_documents = list(posting_lists[0])
     elif len(posting_lists) == 2:
         final_documents = list(posting_lists[0].intersection(posting_lists[1]))
     elif len(posting_lists) > 2:
@@ -28,6 +28,9 @@ def find_documents(id_list):
         json_data = jsonpickle.decode(line.strip())
         if json_data['id'] in id_list:
             documents[json_data['id']] = json_data
+            id_list.remove(json_data['id'])
+            if not id_list:
+                break
     file.close()
 
     return documents
@@ -69,6 +72,9 @@ def search(query, my_index, max_count):
     posting_lists = []
     for token in tokens:
         docs = my_index.get_appearances(token)
+        if docs is None:
+            print("\n Reťazec " + token + " sa v indexe nenachádza!\n")
+            return
         help_set = set()
         for doc in docs:
             help_set.add(doc['id'])
@@ -76,6 +82,8 @@ def search(query, my_index, max_count):
 
     # final_documents bude na konci obsahovať zoznam dokumentov, v ktorých sa vyskytujú všetky slová z dopytu
     final_documents = find_intersection_documents(posting_lists)
+
+    print("\nCelkový počet dokumentov, v ktorých sa dopyt nachádza: " + str(len(final_documents)) + "\n")
 
     # vytvorenie objektu pre invertovaný index pre dopyt
     query_index = InvertedIndex()
@@ -115,15 +123,17 @@ def search(query, my_index, max_count):
             else:
                 scores[file_id] = score
 
+    print("\nSkóre je vypočítané, hľadajú sa dokumenty!\n")
     # zoradnie dokumentov podľa skóre od najväčšieho po najmenšie
     sorted_scores = dict(sorted(scores.items(), key=lambda item: item[1], reverse=True))
     # print(sorted_scores)
     if len(sorted_scores) == 0:
         print("\nNeboli najdene ziadne zaznamy!\n\n")
+        return
 
     # vyhľadanie a uloženie jednotlivých dokumentov
     documents = find_documents(final_documents)
-
+    print(len(documents))
     # vypísanie info pre jednotlivé dokumenty
     i = 1
     for key in sorted_scores.keys():

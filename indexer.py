@@ -16,7 +16,7 @@ def index_file(row):
     """
     index = dict()
     json_data = jsonpickle.decode(row.strip())
-    string = ''.join(json_data['title'])
+    string = json_data['title']
     if json_data['types']:
         string = string + ' ' + ' '.join(json_data['types'])
 

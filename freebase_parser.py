@@ -112,7 +112,7 @@ def merge_data():
         (id, title) = line.split("\t")
         if id and title:
             if id not in data.keys():
-                data[id] = {'id': id, 'title': [title.strip()], 'types': [], 'alts': []}
+                data[id] = {'id': id, 'title': title.strip(), 'types': [], 'alts': []}
 
     file.close()
 
