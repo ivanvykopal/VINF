@@ -1,0 +1,8 @@
+common notable for
+common topic
+base type ontology non agent
+base type ontology abstract
+base type ontology inanimate
+base type ontology agent
+base type ontology physically instantiable
+base type ontology animate
