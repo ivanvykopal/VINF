@@ -1,6 +1,5 @@
 from analyzer import tokenize, remove_stop_words
 from inverted_index import InvertedIndex
-from constants import OUTPUT_FILE
 import jsonpickle
 
 
@@ -27,7 +26,7 @@ def print_info(file_name, score):
     :param file_name: názov súboru
     :param score: skóre dokumentu
     """
-    file = open('./files/objects/' + file_name + '.txt', 'r', encoding='utf-8')
+    file = open('../files/objects/' + file_name + '.txt', 'r', encoding='utf-8')
     line = file.readline()
     file.close()
     json_data = jsonpickle.decode(line.strip())

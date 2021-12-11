@@ -51,6 +51,7 @@ data = (
                 .reduceByKey(lambda a,b: a + b)
                 .filter(lambda x: (x[1].title is not None))
                 .map(lambda x: x[1].to_string())
+                .distinct()
     )
 
 data.saveAsTextFile(output_file)

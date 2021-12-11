@@ -1,9 +1,7 @@
 import os
-import re
 import time
 import json
 import jsonpickle
-from constants import OUTPUT_FILE
 from analyzer import tokenize, remove_stop_words
 from inverted_index import InvertedIndex
 import pandas as pd
@@ -16,7 +14,7 @@ def index_file(file_name, fie_writer):
     :return: id objektu
              index pre daný súbor v tvare dictionary
     """
-    file_in = open('./files/objects/' + file_name, 'r', encoding='utf8')
+    file_in = open('../files/objects/' + file_name, 'r', encoding='utf8')
     line = file_in.readline()
     file_in.close()
     json_data = jsonpickle.decode(line.strip())
@@ -38,7 +36,7 @@ def index_file(file_name, fie_writer):
 
 
 def index_terms():
-    file = open('./files/terms.txt', 'r', encoding='utf-8')
+    file = open('../files/terms.txt', 'r', encoding='utf-8')
     terms = list()
     ids = list()
     for i, line in enumerate(file):
@@ -51,9 +49,9 @@ def index_terms():
     df = pd.DataFrame(data=data)
     df = df.sort_values(['terms', 'ids'], ascending=[True, True])
 
-    df.to_csv('./files/dataframe.csv', index=False)
+    df.to_csv('../files/dataframe.csv', index=False)
     frequency = df.groupby(df.columns.tolist(), as_index=False).size()
-    frequency.to_csv('./files/duplicates.csv', index=False)
+    frequency.to_csv('../files/duplicates.csv', index=False)
 
 
 def create_index():
@@ -66,8 +64,8 @@ def create_index():
 
     print('Index file')
 
-    file_writer = open('./files/terms.txt', 'w', encoding='utf-8')
-    for file in os.listdir('./files/objects'):
+    file_writer = open('../files/terms.txt', 'w', encoding='utf-8')
+    for file in os.listdir('../files/objects'):
         index_file(file, file_writer)
 
     file_writer.close()
@@ -75,13 +73,13 @@ def create_index():
     index_terms()
 
     print("Vytvaranie indexu")
-    my_index.create_index('./files/duplicates.csv')
+    my_index.create_index('../files/duplicates.csv')
     print("Utriedenie indexu")
     my_index.sort_index()
     print("Vypocet wf_idf")
     my_index.wf_idf()
     print("Ulozenie indexu")
-    with open("./files/index.json", "w", encoding='utf-8') as outfile:
+    with open("../files/index.json", "w", encoding='utf-8') as outfile:
         json.dump(my_index.get_index(), outfile)
 
     print("Cas behu pre Indexer: " + str((time.time() - start_time)) + " sekund!")

@@ -10,7 +10,7 @@ def read_index():
     Metóda pre načítanie indexu zo súboru.
     :return: načítaný index
     """
-    with open("./files/index.json") as jsonFile:
+    with open("../files/index.json") as jsonFile:
         index = json.load(jsonFile)
 
     return index
